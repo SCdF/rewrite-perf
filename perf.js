@@ -106,6 +106,39 @@ const bench = (libname) => {
   console.log(`               MAX: ${batchMillis(maxNanos)}`);
 }
 
+const check = (libname) => {
+  const assert = require('assert');
+  const lib = require(libname);
+
+  const before = {
+    "!foo.%": false,
+    "foo": "bar",
+    "fop": {
+      "1bart": null,
+      " ": "I'm so sorry"
+    }
+  }
+  const after = {
+    _c33_foo_c46__c37_: -9007199254740990,
+    foo: 'bar',
+    fop: {
+      _c49_bart: -9007199254740991,
+      _c32_: "I'm so sorry"
+    }
+  }
+
+  try {
+    assert.deepEqual(lib.rewrite(before), after);
+  } catch (err) {
+    console.error(`${libname} FAILED CHECK`, err);
+    process.exit(-1);
+  }
+}
+
+check('./rewrite.cleanest');
+check('./rewrite.original');
+check('./rewrite.fastest');
+
 bench('./rewrite.cleanest');
 bench('./rewrite.original');
 bench('./rewrite.fastest');

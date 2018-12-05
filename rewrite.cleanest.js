@@ -4,9 +4,6 @@ var IDB_NULL = Number.MIN_SAFE_INTEGER;
 var IDB_FALSE = Number.MIN_SAFE_INTEGER + 1;
 var IDB_TRUE = Number.MIN_SAFE_INTEGER + 2;
 
-var ALLOWABLE_SINGLE_FIELD = ['_', '$'];
-var ALLOWABLE = ALLOWABLE_SINGLE_FIELD.concat(['.']);
-
 //
 // IndexedDB only allows valid JS names in its index paths, whereas JSON allows
 // for any string at all. This converts invalid JS names to valid ones, to allow
@@ -31,8 +28,6 @@ var ALLOWABLE = ALLOWABLE_SINGLE_FIELD.concat(['.']);
 // worth looking into if act of rewriting slowed things down and we wanted to
 // reduce the instances in which the `bad` var below is hit.
 //
-// This can almost certainly be performance tuned.
-//
 
 // Additional regex notes over the above comment:
 //  - MULTI_INVALID needs the \. detection at the front so it captures it correctly
@@ -40,6 +35,7 @@ var ALLOWABLE = ALLOWABLE_SINGLE_FIELD.concat(['.']);
 //    (except for if preceeded by \ or at the start)
 var SINGLE_INVALID =   /[^a-zA-Z0-9_$]+|(^[^a-zA-Z_$])/g
 var MULTI_INVALID = /(\\\.)|[^a-zA-Z0-9_$\.]+|(^[^a-zA-Z_$])/g
+
 var correctCharacters = function(match) {
   var good = '';
   for (var i = 0; i < match.length; i++) {

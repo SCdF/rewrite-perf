@@ -31,8 +31,6 @@ var ALLOWABLE = ALLOWABLE_SINGLE_FIELD.concat(['.']);
 // worth looking into if act of rewriting slowed things down and we wanted to
 // reduce the instances in which the `bad` var below is hit.
 //
-// This can almost certainly be performance tuned.
-//
 function sanitise(name, singleField) {
   var sanitised = '';
   var substringStart = 0;
@@ -74,7 +72,6 @@ function sanitise(name, singleField) {
   return sanitised || name;
 }
 
-// TODO: this can almost certainly be performance tuned.
 function rewrite(data) {
   var isArray = Array.isArray(data);
   var clone = isArray

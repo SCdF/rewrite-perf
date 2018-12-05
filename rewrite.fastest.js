@@ -4,8 +4,19 @@ var IDB_NULL = Number.MIN_SAFE_INTEGER;
 var IDB_FALSE = Number.MIN_SAFE_INTEGER + 1;
 var IDB_TRUE = Number.MIN_SAFE_INTEGER + 2;
 
-var ALLOWABLE_SINGLE_FIELD = ['_', '$'];
-var ALLOWABLE = ALLOWABLE_SINGLE_FIELD.concat(['.']);
+var C_SLASH = 92,
+    C_ZERO = 48,
+    C_NINE = 57,
+    C_A_LO = 97,
+    C_Z_LO = 122,
+    C_A_HI = 65,
+    C_Z_HI = 90,
+    C_UNDERSCORE = 95,
+    C_DOLLAR = 36,
+    C_DOT = 46;
+
+var ALLOWABLE_SINGLE_FIELD = [C_UNDERSCORE, C_DOLLAR];
+var ALLOWABLE = ALLOWABLE_SINGLE_FIELD.concat([C_DOT]);
 
 //
 // IndexedDB only allows valid JS names in its index paths, whereas JSON allows
@@ -31,8 +42,6 @@ var ALLOWABLE = ALLOWABLE_SINGLE_FIELD.concat(['.']);
 // worth looking into if act of rewriting slowed things down and we wanted to
 // reduce the instances in which the `bad` var below is hit.
 //
-// This can almost certainly be performance tuned.
-//
 function sanitise(name, singleField) {
   var sanitised = '';
   var substringStart = 0;
@@ -41,27 +50,28 @@ function sanitise(name, singleField) {
   var allowable = singleField ? ALLOWABLE_SINGLE_FIELD :  ALLOWABLE;
 
   for (var i = 0; i < name.length; i++) {
-    var c = name[i];
+    var c = name.charCodeAt(i);
     var bad = nextBad;
     nextBad = false;
 
     if (!bad) {
-      if (!singleField && c === '\\') {
+      if (!singleField && c === C_SLASH) {
         nextBad = true;
-      } else if (i === 0 && c >= '0' && c <= '9') {
+      } else if (i === 0 && c >= C_ZERO && c <= C_NINE) {
         bad = true;
-      } else if (!((c >= '0' && c <= '9') ||
-                   (c >= 'a' && c <= 'z') ||
-                   (c >= 'A' && c <= 'Z') ||
-                    allowable.includes(c))) {
-        bad = true;
+      } else {
+        var ok = (c >= C_A_LO && c <= C_Z_LO) ||
+                 (c >= C_A_HI && c <= C_Z_HI) ||
+                 (c >= C_ZERO && c <= C_NINE) ||
+                 allowable.includes(c);
+        bad = !ok;
       }
     }
 
     if (bad || nextBad) {
       sanitised += name.substring(substringStart, i);
       if (bad) {
-        sanitised += '_c' + c.charCodeAt(0) + '_';
+        sanitised += '_c' + c + '_';
       }
       substringStart = i + 1;
     }
@@ -80,7 +90,7 @@ function rewrite(data) {
     ? []
     : {};
 
-  for (var key of Object.keys(data)) {
+  Object.keys(data).forEach(function (key) {
     var safeKey = isArray ? key : sanitise(key, true);
 
     if (data[key] === null) {
@@ -92,7 +102,7 @@ function rewrite(data) {
     } else {
       clone[safeKey] = data[key];
     }
-  };
+  });
 
   return clone;
 }
