@@ -6,7 +6,29 @@ A giant assumption is that this code works the same in Node.JS as it does in the
 
 This may be a fallacy.
 
-
 ```sh
-node ./perf.js
+scdf at SCdF in ~/Code/SCdF/rewrite-perf on master▲
+$ time node perf.js
+Benchmarking different approaches
+Processing 1000 times, for 10 rounds, over three docs
+(ignoring the fastest and slowest batch)
+===./rewrite.cleanest===
+Average millis per: 1000
+               MIN: 1649
+               MID: 5924
+               MAX: 11225
+===./rewrite.original===
+Average millis per: 1000
+               MIN: 1852
+               MID: 4737
+               MAX: 9378
+===./rewrite.fastest===
+Average millis per: 1000
+               MIN: 1414
+               MID: 4263
+               MAX: 8342
+
+real    8m10.759s
+user    7m48.835s
+sys     0m5.323s
 ```
