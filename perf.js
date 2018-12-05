@@ -43,9 +43,7 @@ const complicatedMax = () => {
   return doc;
 }
 
-const ROUNDS = 3;
-const DROP = 1; // TODO do this better, maybe get rid of highest and lowest instead?
-const DIV = ROUNDS - DROP;
+const ROUNDS = 10;
 const BATCH = 1e3;
 
 const DOC_MIN = complicatedMin();
@@ -53,7 +51,8 @@ const DOC_MID = complicatedMid();
 const DOC_MAX = complicatedMax();
 
 console.log('Benchmarking different approaches');
-console.log(`Processing ${BATCH} times, for ${ROUNDS} rounds, dropping the slowest ${DROP} rounds`);
+console.log(`Processing ${BATCH} times, for ${ROUNDS} rounds, over three docs`);
+console.log('(ignoring the fastest and slowest batch)');
 
 const bench = (libname) => {
   const run = (name, doc) => {
@@ -66,30 +65,47 @@ const bench = (libname) => {
       }
       const after = process.hrtime(before);
       const time = after[0] * NS_PER_SEC + after[1];
-      if (round >= DROP) {
-        nanos.push(time);
-      }
+      nanos.push(time);
     }
     return nanos;
+  }
+
+  const average = nanos => {
+    let max, min, count = 0;
+
+    nanos.forEach(nano => {
+      if (max === undefined || nano > max) {
+        max = nano;
+      }
+      if (min === undefined || nano < min) {
+        min = nano;
+      }
+
+      count += nano;
+    })
+
+    count = count - max - min;
+
+    return count / (nanos.length - 2);
   }
 
   console.log(`===${libname}===`);
   const lib = require(libname);
 
-  const minNanos = run('>min<mid max ', DOC_MIN);
-  const midNanos = run(' min>mid<max ', DOC_MID);
-  const maxNanos = run(' min mid>max<', DOC_MAX);
+  const minNanos = run(' min______ ', DOC_MIN);
+  const midNanos = run(' ___mid___ ', DOC_MID);
+  const maxNanos = run(' ______max ', DOC_MAX);
 
   process.stdout.write('\r');
 
-  const batchAverage = nanos => Math.floor(nanos.reduce((a,b) => a + b) / DIV / 1e6);
+  const batchMillis = nanos => Math.floor(average(nanos) / 1e6);
 
-  console.log(`Average millis per ${BATCH}`);
-  console.log(`                 MIN: ${batchAverage(minNanos)}`);
-  console.log(`                 MID: ${batchAverage(midNanos)}`);
-  console.log(`                 MAX: ${batchAverage(maxNanos)}`);
+  console.log(`Average millis per: ${BATCH}`);
+  console.log(`               MIN: ${batchMillis(minNanos)}`);
+  console.log(`               MID: ${batchMillis(midNanos)}`);
+  console.log(`               MAX: ${batchMillis(maxNanos)}`);
 }
 
-// bench('./rewrite.cleanest');
-// bench('./rewrite.original');
+bench('./rewrite.cleanest');
+bench('./rewrite.original');
 bench('./rewrite.fastest');

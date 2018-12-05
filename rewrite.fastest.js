@@ -80,7 +80,7 @@ function rewrite(data) {
     ? []
     : {};
 
-  Object.keys(data).forEach(function (key) {
+  for (var key of Object.keys(data)) {
     var safeKey = isArray ? key : sanitise(key, true);
 
     if (data[key] === null) {
@@ -92,7 +92,7 @@ function rewrite(data) {
     } else {
       clone[safeKey] = data[key];
     }
-  });
+  };
 
   return clone;
 }
