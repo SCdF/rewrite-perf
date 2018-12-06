@@ -14,21 +14,21 @@ Processing 1000 times, for 10 rounds, over three docs
 (ignoring the fastest and slowest batch)
 ===./rewrite.cleanest===
 Average millis per: 1000
-               MIN: 1649
-               MID: 5924
-               MAX: 11225
+               MIN: 1754
+               MID: 6431
+               MAX: 11721
 ===./rewrite.original===
 Average millis per: 1000
-               MIN: 1852
-               MID: 4737
-               MAX: 9378
+               MIN: 1925
+               MID: 4765
+               MAX: 9625
 ===./rewrite.fastest===
 Average millis per: 1000
-               MIN: 1414
-               MID: 4263
-               MAX: 8342
+               MIN: 1420
+               MID: 4278
+               MAX: 8469
 
-real    8m10.759s
-user    7m48.835s
-sys     0m5.323s
+real    8m26.385s
+user    8m1.971s
+sys     0m5.599s
 ```
